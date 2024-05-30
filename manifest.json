@@ -1,6 +1,6 @@
 {
     "manifest_version": 3,
-    "name": "KA-Helper",
+    "name": "Kleinanzeigen-Helper",
     "version": "1.0",
     "description": "Manages Kleinanzeigen Listings.",
     "icons":{
