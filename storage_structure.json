@@ -1,0 +1,26 @@
+{
+    "allItems": [
+        {
+            "title": "Felgen",
+            "price": "500 € VB",
+            "priceType": 0,
+            "condition": "Neu",
+            "date": "01.01.2022",
+            "description": "215 55 R17 Felgen zu verkaufen",
+            "postCode": "13405",
+            "street": "",
+            "shipping": "5,59 €"
+        },
+        {
+            "title": "Tassen",
+            "price": "10 €",
+            "priceType": 1,
+            "condition": "Sehr Gut",
+            "date": "03.03.2023",
+            "description": "nicht mehr alle Tassen im Schrank",
+            "postCode": "12345",
+            "street": "",
+            "shipping": "8,99 €"
+        }
+    ]
+}

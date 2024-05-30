@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="jquery-3.7.1.slim.min.js"></script>
+    <script type="text/javascript" src="popup.js"></script>
+    <style>
+        body {
+            width: 500px;
+            margin: 0 auto;
+            font-family: Arial, sans-serif;
+        }
+        .item-list {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+        .item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 5px;
+        }
+        .no-items {
+            font-size: 14px;
+            color: #666;
+            padding: 20px;
+            text-align: center;
+        }
+        .item-info {
+            display: flex;
+            align-items: center;
+        }
+        .item img {
+            max-height: 64px;
+            margin-right: 5px;
+        }
+        .item-details {
+            display: flex;
+            flex-direction: column;
+        }
+        .item-title {
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .item-price {
+            font-size: 14px;
+            color: #666;
+        }
+        .item-date {
+            font-size: 12px;
+            color: #999;
+        }
+        .item-buttons {
+            display: flex;
+            flex-direction: column;
+            margin-right: 5px;
+        }
+        .item-buttons button {
+            margin-bottom: 5px;
+        }
+        .bottom {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="item-list" id="item-list">
+</div>
+<div class="bottom">
+    <input type="button" id="save" value="Save"/>
+</div>
+</body>
+</html>

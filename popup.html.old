@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Listings</title>
+        <script src="jquery-3.7.1.slim.min.js"></script>
+        <script type="text/javascript" src="popup.js"></script>
+        <style>
+            body {width: 500px;}
+            #bottom {text-align: center;}
+            .buttons {
+                width: 50%;
+                align-items: right;
+            }
+            .buttons > input {margin: 5px;}
+            .item_image {
+                max-height: 64px;
+                margin: 5px;
+                border: 1px solid black;
+            }
+            .item {display: inline-flex;}
+            #listings > div > h2 {margin-right: 5px;}
+        </style>
+    </head>
+    <body>
+        <div id="listings">
+            <div id="item1" class="item">
+                <img src="noimage.png" class="item_image"/>
+                <h2 id="title1">Felgen</h2><br>
+                <h3 id="price1">500 &euro;</h3> 
+                <p>(01.01.2022)</p>
+                <div class="buttons">
+                    <input type="button" id="load1" value="Load"/>
+                    <input type="button" id="del1" value="Delete"/>
+                </div>
+                
+            </div>
+            <div id="item2" class="item">
+                <img src="noimage.png" class="item_image"/>
+                <h2 id="title2">Tassen</h2>
+                <p>
+                    100 &euro; 
+                    (01.03.2024)
+                    <div class="buttons">
+                        <input type="button" id="load2" value="Load"/>
+                        <input type="button" id="del2" value="Delete"/>
+                    </div>
+                </p>
+            </div>
+        </div>
+        <hr>
+        <div id="bottum">
+            <input type="button" id="save" value="save"/>
+        </div>
+    </body>
+</html>
