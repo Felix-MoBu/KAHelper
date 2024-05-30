@@ -1,15 +1,16 @@
+// adds save button event to popup page
 $(function() {
     $('#save').click(function() {
-        var newItem = {}; // Initialisiere das Objekt
+        var newItem = {};
 
         Promise.all([
-            executeDOMtoString('#viewad-title'),
-            executeDOMtoString('#viewad-price'),
-            executeDOMtoString('#viewad-description-text'),
-            executeDOMtoString('#viewad-locality'),
-            executeDOMtoString('#street-address'),
-            executeDOMtoString('.boxedarticle--details--shipping'),
-            executeDOMtoString('#addetailslist--detail--value')
+            DOMgetValue('#viewad-title'),
+            DOMgetValue('#viewad-price'),
+            DOMgetValue('#viewad-description-text'),
+            DOMgetValue('#viewad-locality'),
+            DOMgetValue('#street-address'),
+            DOMgetValue('.boxedarticle--details--shipping'),
+            DOMgetValue('#addetailslist--detail--value')
         ]).then(function(results) {
             newItem.title = results[0];
             newItem.price = results[1];
@@ -49,8 +50,8 @@ $(function() {
     });
 });
 
-
-function executeDOMtoString(selector) {
+// selects and returns dom elements content by query selector
+function DOMgetValue(selector) {
     return chrome.tabs.query({ active: true, currentWindow: true }).then(function (tabs) {
         var activeTab = tabs[0];
         var activeTabId = activeTab.id;
@@ -67,6 +68,7 @@ function executeDOMtoString(selector) {
     });
 }
 
+// reats dom elements innerText by selector and returns as string
 function DOMtoString(selector) {
     if (selector) {
         selector = document.querySelector(selector);
@@ -77,6 +79,7 @@ function DOMtoString(selector) {
     return selector.innerText;
 }
 
+// sets value of e.g. input in dom by query selector
 function DOMSetValue(selector, value) {
     return chrome.tabs.query({ active: true, currentWindow: true }).then(function (tabs) {
         var activeTab = tabs[0];
@@ -97,6 +100,7 @@ function DOMSetValue(selector, value) {
     });
 }
 
+// sets index of list in dom by query selector
 function DOMSetIndex(selector, value) {
     return chrome.tabs.query({ active: true, currentWindow: true }).then(function (tabs) {
         var activeTab = tabs[0];
@@ -117,6 +121,7 @@ function DOMSetIndex(selector, value) {
     });
 }
 
+// sets checkbox state in dom by query selector
 function DOMSetCheckbox(selector, value) {
     return chrome.tabs.query({ active: true, currentWindow: true }).then(function (tabs) {
         var activeTab = tabs[0];
@@ -137,6 +142,7 @@ function DOMSetCheckbox(selector, value) {
     });
 }
 
+// changes atribute of element in dom by query selector
 function DOMChangeAttribute(selector, oldValue, newValue) {
     return chrome.tabs.query({ active: true, currentWindow: true }).then(function (tabs) {
         var activeTab = tabs[0];
@@ -158,6 +164,7 @@ function DOMChangeAttribute(selector, oldValue, newValue) {
     });
 }
 
+// stets innerText of dom by query selector
 function DOMSetTextContent(selector, value) {
     return chrome.tabs.query({ active: true, currentWindow: true }).then(function (tabs) {
         var activeTab = tabs[0];
@@ -178,6 +185,7 @@ function DOMSetTextContent(selector, value) {
     });
 }
 
+// displays list of all currently stored items
 function showItems() {
     allItems = chrome.storage.sync.get('allItems', function(data) {
         if (data) {
@@ -216,6 +224,7 @@ function showItems() {
     });
 }
 
+// manages button click events of item buttons
 function handleButtonClick(event) {
     const target = event.target;
     if (target.tagName === 'BUTTON') {
@@ -231,6 +240,7 @@ function handleButtonClick(event) {
     }
 }
 
+// fills form from stored items
 function handleLoadClick(id) {
     chrome.storage.sync.get('allItems', function(data) {
         if (data) {
@@ -256,6 +266,7 @@ function handleLoadClick(id) {
     });
 }
 
+// remove item from the list in storage and refresh popup page
 function handleDeleteClick(id) {
     chrome.storage.sync.get('allItems', function(data) {
         if (data) {
@@ -272,12 +283,14 @@ function handleDeleteClick(id) {
     });
 }
 
+// add listener to fire reload event if item list in storage has changed
 chrome.storage.onChanged.addListener(function() {
     chrome.storage.sync.get({
       profileId: 0
     }, function() {
         showItems();
     });
-  });
+});
 
+// initial loading of already stored items
 window.onload = showItems;
