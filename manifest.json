@@ -15,6 +15,7 @@
     "permissions":[
         "storage",
         "scripting",
-        "activeTab"
+        "activeTab",
+        "downloads"
     ]
 }

@@ -1,66 +1,102 @@
 // adds save button event to popup page
 $(function() {
-    $('#save').click(function() {
-        var newItem = {};
-
-        Promise.all([
-            DOMgetValue('#viewad-title'),
-            DOMgetValue('#viewad-price'),
-            DOMgetValue('#viewad-description-text'),
-            DOMgetValue('#viewad-locality'),
-            DOMgetValue('#street-address'),
-            DOMgetValue('.boxedarticle--details--shipping'),
-            DOMgetValue('#addetailslist--detail--value')
-        ]).then(function(results) {
-            newItem.title = results[0];
-            newItem.price = results[1];
-
-            if (newItem.price.includes('VB')) {
-                newItem.priceType = 1;
-            } else if (newItem.price.includes('verschenken')) {
-                newItem.priceType = 2;
-            } else {
-                newItem.priceType = 0;
-            }
-
-            newItem.description = results[2];
-            newItem.postCode = results[3].trim().split(' ')[0];
-            newItem.street = results[4];
-            if (newItem.street.includes('querySelector')) {
-                newItem.street = "";
-            }
-            newItem.shipping = results[5].trim().split(' ')[3];
-            newItem.condition = results[6].trim();
-            newItem.date = new Date().toLocaleDateString('de-de');
-
-            //document.getElementById('title1').innerText = JSON.stringify(newItem);
-            //return;
-
-            var items = {};
-            chrome.storage.sync.get('allItems', function(data) {
-                if (data) {
-                    items = data.allItems;
-                }
-                items.push(newItem)
-                chrome.storage.sync.set({'allItems' : items});
-            });
-        }).catch(function(error) {
-            console.error('Error:', error);
-        });
-    });
+    $('#saveImages').click(function(){saveButtonClick(true)});
+    $('#save').click(function(){saveButtonClick()});
 });
+
+function saveButtonClick(withImages = false) {
+    var newItem = {};
+
+    Promise.all([
+        DOMgetValue('title'),
+        DOMgetValue('price'),
+        DOMgetValue('description'),
+        DOMgetValue('locality'),
+        DOMgetValue('street'),
+        DOMgetValue('shipping'),
+        DOMgetValue('condition'),
+        DOMgetValue('images')
+    ]).then(function(results) {
+        newItem.title = results[0];
+        newItem.price = results[1];
+
+        if (newItem.price.includes('VB')) {
+            newItem.priceType = 1;
+        } else if (newItem.price.includes('verschenken')) {
+            newItem.priceType = 2;
+        } else {
+            newItem.priceType = 0;
+        }
+
+        newItem.description = results[2];
+        newItem.postCode = results[3].trim().split(' ')[0];
+        newItem.street = results[4];
+        if (newItem.street.includes('querySelector')) {
+            newItem.street = "";
+        }
+        newItem.shipping = results[5].trim().split(' ')[3];
+        newItem.condition = results[6].trim();
+        newItem.date = new Date().toLocaleDateString('de-de');
+
+        if (withImages) {
+            results[7].forEach(image => {
+                chrome.downloads.download({url: image});        // needs permission "downloads"!
+            });
+            newItem.images = results[7].map(function(image) {
+                return image.split('/').pop().split('?')[0] + '.jpg';
+            });
+
+        } else {
+            newItem.images = [];
+        }
+
+        // document.getElementById('test').innerText = JSON.stringify(newItem);
+        // return;
+
+        var items = {};
+        chrome.storage.sync.get('allItems', function(data) {        // needs permission "storage"!
+            if (data) {
+                items = data.allItems;
+            }
+            items.push(newItem)
+            chrome.storage.sync.set({'allItems' : items});
+        });
+    }).catch(function(error) {
+        console.error('Error:', error);
+    });
+}
 
 // selects and returns dom elements content by query selector
 function DOMgetValue(selector) {
-    return chrome.tabs.query({ active: true, currentWindow: true }).then(function (tabs) {
+    return chrome.tabs.query({ active: true, currentWindow: true }).then(function (tabs) {        // needs permission "activeTab"!
         var activeTab = tabs[0];
         var activeTabId = activeTab.id;
+        
+        var keyWordID = ['title', 'price', 'description', 'locality', 'street', 'shipping', 'condition', 'images'].indexOf(selector);
+        if (activeTab.url.includes('s-anzeige')) {
+            selector = ['#viewad-title', '#viewad-price', '#viewad-description-text', '#viewad-locality', '#street-address', '.boxedarticle--details--shipping', '#addetailslist--detail--value', '#viewad-image>data-imgsrc'][keyWordID];
+        } else if (activeTab.url.includes('p-anzeige')) {
+            selector = ['#postad-title', '#micro-frontend-price', '#pstad-descrptn', '#pstad-zip', '#pstad-street', '#jsx-3271908351 PackageSizeItem--Price', '.jsx-3300347113', '.imagebox-new-thumbnail--cover>data-xxl'][keyWordID]; // ----------------------------- HIER WEITER ---------------------------- //
+        } else {
+            throw new Error('Page Type not implemented!');
+        }
 
-        return chrome.scripting.executeScript({
-            target: { tabId: activeTabId },
-            func: DOMtoString,
-            args: [selector]
-        });
+        if (selector.includes('>')) {
+            var attribute = selector.split('>')[1];
+            selector = selector.split('>')[0];
+            return chrome.scripting.executeScript({         // needs permission "scripting"!
+                target: { tabId: activeTabId },
+                func: DOMattributeToString,
+                args: [selector, attribute]
+            });
+            
+        } else {
+            return chrome.scripting.executeScript({         // needs permission "scripting"!
+                target: { tabId: activeTabId },
+                func: DOMtoString,
+                args: [selector]
+            });
+        }
     }).then(function (results) {
         return results[0].result;
     }).catch(function (error) {
@@ -78,6 +114,25 @@ function DOMtoString(selector) {
     }
     return selector.innerText;
 }
+
+function DOMattributeToString(selector, attribute) {
+    let elements;
+    if (selector) {
+        elements = document.querySelectorAll(selector);
+        if (!elements.length) return "ERROR: querySelector failed to find nodes";
+    } else {
+        elements = [document.documentElement];
+    }
+
+    let values = [];
+    elements.forEach(element => {
+        let value = attribute ? element.getAttribute(attribute) : element.innerHTML;
+        values.push(value);
+    });
+
+    return values;
+}
+
 
 // sets value of e.g. input in dom by query selector
 function DOMSetValue(selector, value) {
