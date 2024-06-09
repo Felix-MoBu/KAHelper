@@ -4,7 +4,6 @@ $(function() {
     $('#save').click(function(){saveButtonClick()});
 });
 
-
 var selectors = ['title', 'price', 'description', 'locality', 'street', 'shipping', 'condition', 'images'];
 
 function saveButtonClick(withImages = false) {
@@ -14,7 +13,7 @@ function saveButtonClick(withImages = false) {
         newItem.title = results[0];
         newItem.price = results[1].split(' ')[0];
 
-        if (newItem.price.includes('VB')) {
+        if (results[1].includes('VB')) {
             newItem.priceType = 1;
         } else if (newItem.price.includes('verschenken')) {
             newItem.priceType = 2;
