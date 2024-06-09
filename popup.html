@@ -22,6 +22,9 @@
             justify-content: space-between;
             padding: 5px;
         }
+        .item:hover {
+            background-color: lightgray;
+        }
         .no-items {
             font-size: 14px;
             color: #666;
@@ -31,10 +34,7 @@
         .item-info {
             display: flex;
             align-items: center;
-        }
-        .item img {
-            max-height: 64px;
-            margin-right: 5px;
+            margin-left: 5px;
         }
         .item-details {
             display: flex;
@@ -46,11 +46,10 @@
         }
         .item-price {
             font-size: 14px;
-            color: #666;
         }
         .item-date {
             font-size: 12px;
-            color: #999;
+            color: #666;
         }
         .item-buttons {
             display: flex;
@@ -62,7 +61,10 @@
         }
         .bottom {
             text-align: center;
-            margin-bottom: 10px;
+            margin: 10px;
+        }
+        #errorMsg{
+            color: red;
         }
     </style>
 </head>
@@ -73,6 +75,7 @@
 <div class="bottom">
     <input type="button" id="saveImages" value="Save with images"/>
     <input type="button" id="save" value="Save only text"/>
+    <a id="errorMsg"></a>
 </div>
 <div id="test"></div>
 </body>

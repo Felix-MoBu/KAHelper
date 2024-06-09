@@ -4,21 +4,15 @@ $(function() {
     $('#save').click(function(){saveButtonClick()});
 });
 
+
+var selectors = ['title', 'price', 'description', 'locality', 'street', 'shipping', 'condition', 'images'];
+
 function saveButtonClick(withImages = false) {
     var newItem = {};
 
-    Promise.all([
-        DOMgetValue('title'),
-        DOMgetValue('price'),
-        DOMgetValue('description'),
-        DOMgetValue('locality'),
-        DOMgetValue('street'),
-        DOMgetValue('shipping'),
-        DOMgetValue('condition'),
-        DOMgetValue('images')
-    ]).then(function(results) {
+    Promise.all(selectors.map(currSelector => DOMgetValue(currSelector))).then(function(results) {
         newItem.title = results[0];
-        newItem.price = results[1];
+        newItem.price = results[1].split(' ')[0];
 
         if (newItem.price.includes('VB')) {
             newItem.priceType = 1;
@@ -71,26 +65,45 @@ function DOMgetValue(selector) {
     return chrome.tabs.query({ active: true, currentWindow: true }).then(function (tabs) {        // needs permission "activeTab"!
         var activeTab = tabs[0];
         var activeTabId = activeTab.id;
-        
-        var keyWordID = ['title', 'price', 'description', 'locality', 'street', 'shipping', 'condition', 'images'].indexOf(selector);
-        if (activeTab.url.includes('s-anzeige')) {
+        document.querySelector('#errorMsg').innerText = "";
+
+       var keyWordID = selectors.indexOf(selector);
+        if (activeTab.url.includes('https://www.kleinanzeigen.de/s-anzeige')) {
             selector = ['#viewad-title', '#viewad-price', '#viewad-description-text', '#viewad-locality', '#street-address', '.boxedarticle--details--shipping', '#addetailslist--detail--value', '#viewad-image>data-imgsrc'][keyWordID];
-        } else if (activeTab.url.includes('p-anzeige')) {
-            selector = ['#postad-title', '#micro-frontend-price', '#pstad-descrptn', '#pstad-zip', '#pstad-street', '#jsx-3271908351 PackageSizeItem--Price', '.jsx-3300347113', '.imagebox-new-thumbnail--cover>data-xxl'][keyWordID]; // ----------------------------- HIER WEITER ---------------------------- //
+        } else if (activeTab.url.includes('https://www.kleinanzeigen.de/p-anzeige')) {
+            selector = ['#postad-title>value', '#micro-frontend-price>value', '#pstad-descrptn>value', '#pstad-zip>value', '#pstad-street>value', '#jsx-3271908351 PackageSizeItem--Price>value', '.jsx-3300347113>value', '.imagebox-new-thumbnail--cover>data-xxl'][keyWordID];
         } else {
+            document.querySelector('#errorMsg').innerText = "page not supported!";
             throw new Error('Page Type not implemented!');
         }
 
-        if (selector.includes('>')) {
+
+        if (selector.includes('>value')) {
+            selector = selector.split('>')[0];
+            var retVal = chrome.scripting.executeScript({         // needs permission "scripting"!
+                target: { tabId: activeTabId },
+                func: DOMvalueToString,
+                args: [selector]
+            });
+            if (retVal == null) {
+                var attribute = selector.split('>')[1];
+                retVal = chrome.scripting.executeScript({         // needs permission "scripting"!
+                    target: { tabId: activeTabId },
+                    func: DOMattributeToArray,
+                    args: [selector, attribute]
+                });
+            }
+            return retVal;
+        } else if (selector.includes('>')) {
             var attribute = selector.split('>')[1];
             selector = selector.split('>')[0];
             return chrome.scripting.executeScript({         // needs permission "scripting"!
                 target: { tabId: activeTabId },
-                func: DOMattributeToString,
+                func: DOMattributeToArray,
                 args: [selector, attribute]
             });
-            
         } else {
+            console.log(selector);
             return chrome.scripting.executeScript({         // needs permission "scripting"!
                 target: { tabId: activeTabId },
                 func: DOMtoString,
@@ -115,7 +128,19 @@ function DOMtoString(selector) {
     return selector.innerText;
 }
 
-function DOMattributeToString(selector, attribute) {
+// reats dom elements value by selector and returns as string
+function DOMvalueToString(selector) {
+    if (selector) {
+        selector = document.querySelector(selector);
+        if (!selector) return "ERROR: querySelector failed to find node"
+    } else {
+        selector = document.documentElement;
+    }
+    return selector.value;
+}
+
+// reats dom elements value attribute by selector and returns as array
+function DOMattributeToArray(selector, attribute) {
     let elements;
     if (selector) {
         elements = document.querySelectorAll(selector);
@@ -261,10 +286,9 @@ function showItems() {
 
                 itemDiv.innerHTML = `
                     <div class="item-info">
-                        <img src="noimage.png" alt="${item.title}">
                         <div class="item-details">
                             <div class="item-title">${item.title}</div>
-                            <div class="item-price">${item.price}</div>
+                            <div class="item-price">${item.price} €</div>
                             <div class="item-date">Gespeichert am ${item.date}</div>
                         </div>
                     </div>
