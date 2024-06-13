@@ -271,6 +271,15 @@ function showItems() {
             const container = document.getElementById('item-list');
             container.textContent = '';
 
+            // if no data exists
+            if (data.allItems == null) {
+                const itemDiv = document.createElement('div');
+                itemDiv.innerHTML = `<div class="no-items">no items</div>`
+                container.appendChild(itemDiv);
+                return;
+            }
+
+            // if the List exists but its empty
             if (data.allItems.length < 1) {
                 const itemDiv = document.createElement('div');
                 itemDiv.innerHTML = `<div class="no-items">no items</div>`
@@ -278,6 +287,7 @@ function showItems() {
                 return;
             }
 
+            // if there is data in the list
             data.allItems.forEach((item, index) => {
                 const itemDiv = document.createElement('div');
                 itemDiv.className = 'item';
